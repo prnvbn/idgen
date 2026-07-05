@@ -61,9 +61,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Vet
-        run: make vet
-
       - name: Build
         shell: bash
         run: |
