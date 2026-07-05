@@ -9,7 +9,7 @@ define build-target
 endef
 
 vet:
-odin build $(SRC) -vet
+	odin build $(SRC) -vet
 
 dist:
 	mkdir -p $(DIST_DIR)
