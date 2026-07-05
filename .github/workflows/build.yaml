@@ -2,30 +2,104 @@ name: Build and Release
 
 on:
   push:
-    paths: ["version.txt"]
-    branches: ["main"]
+    paths:
+      - "version.txt"
+    branches:
+      - "main"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-amd64
+            artifact_name: idgen-linux-amd64
+            artifact_path: dist/idgen-linux-amd64
+
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+            artifact_name: idgen-linux-arm64
+            artifact_path: dist/idgen-linux-arm64
+
+          - os: macos-15-intel
+            target: darwin-amd64
+            artifact_name: idgen-darwin-amd64
+            artifact_path: dist/idgen-darwin-amd64
+
+          - os: macos-14
+            target: darwin-arm64
+            artifact_name: idgen-darwin-arm64
+            artifact_path: dist/idgen-darwin-arm64
+
+          - os: windows-latest
+            target: windows
+            artifact_name: idgen-windows.exe
+            artifact_path: dist/idgen-windows.exe
+
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Tag
-        id: tag
+      - name: Set tag
+        shell: bash
         run: |
-          echo "TAG=$(head -c -1 internal/cli/version.txt)" >> $GITHUB_ENV
+          echo "TAG=$(cat version.txt | tr -d '\n')" >> "$GITHUB_ENV"
 
-      - uses: laytan/setup-odin@v2
+      - name: Setup Odin
+        uses: laytan/setup-odin@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build
-        run: make dist
+      - name: Vet
+        run: make vet
+
+      - name: Build
+        shell: bash
+        run: |
+          make ${{ matrix.target }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+
+  release:
+    name: Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set tag
+        shell: bash
+        run: |
+          echo "TAG=$(cat version.txt | tr -d '\n')" >> "$GITHUB_ENV"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ env.TAG }}
+          name: Release ${{ env.TAG }}
+          artifacts: "dist/*"
+          prerelease: true
+          generateReleaseNotes: true

@@ -1,19 +1,20 @@
-.PHONY: vet dist windows darwin-amd64 darwin-arm64 linux-arm64 linux-amd64 clean
+.PHONY: vet build dist windows darwin-amd64 darwin-arm64 linux-arm64 linux-amd64 clean
 
 DIST_DIR := dist
 BUILD_FLAGS := -o:speed -vet
 SRC := .
 
 define build-target
+	mkdir -p $(DIST_DIR)
 	odin build $(SRC) $(BUILD_FLAGS) -target:$(1) -out:$(DIST_DIR)/idgen-$(2)
 endef
 
 vet:
-	odin build $(SRC) -vet
+	odin check $(SRC) -vet
 
-dist:
+build:
 	mkdir -p $(DIST_DIR)
-	$(MAKE) windows darwin-arm64 darwin-amd64 linux-arm64 linux-amd64
+	odin build $(SRC) $(BUILD_FLAGS) -out:$(DIST_DIR)/idgen
 
 windows:
 	$(call build-target,windows_amd64,windows.exe)
