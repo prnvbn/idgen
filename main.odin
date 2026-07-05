@@ -11,8 +11,8 @@ import "core:strings"
 Options :: struct {
 	version: bool `args:"alias=V" usage:"show version number and quit"`,
 	time_v7: bool `args:"name=time-v7,alias=7" usage:"generate time-based v7 uuid"`,
+	time_v6: bool `args:"name=time-v6,alias=6" usage:"generate time-based v6 uuid"`,
 }
-
 
 // wrapper around flags.parse_or_exit to add support for alias subtag (so that I can support shorthands)
 // used the following as a reference: https://github.com/odin-lang/Odin/blob/5b54b5df3160d6b8d63d41327f4aeb4dd8aae2d8/core/flags/util.odin#L22-L29
@@ -23,7 +23,6 @@ parse_or_exit_with_aliases :: proc(
 	allocator := context.allocator,
 	loc := #caller_location,
 ) {
-	// TODO: add compile time check for args subtag using #assert
 	assert(len(program_args) > 0, "Program arguments slice is empty.", loc)
 
 	program := filepath.base(program_args[0])
@@ -93,6 +92,9 @@ main :: proc() {
 		fmt.println(string(version))
 	case opts.time_v7:
 		generated_uuid := uuid.to_string(uuid.generate_v7())
+		fmt.println(generated_uuid)
+	case opts.time_v6:
+		generated_uuid := uuid.to_string(uuid.generate_v6())
 		fmt.println(generated_uuid)
 	case:
 		generated_uuid := uuid.to_string(uuid.generate_v4())
