@@ -1,0 +1,30 @@
+name: Build and Release
+
+on:
+  push:
+    paths: ["version.txt"]
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag
+        id: tag
+        run: |
+          echo "TAG=$(head -c -1 internal/cli/version.txt)" >> $GITHUB_ENV
+
+      - uses: laytan/setup-odin@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: build
+        run: make dist
