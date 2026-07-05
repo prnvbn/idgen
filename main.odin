@@ -4,8 +4,6 @@ import "core:encoding/uuid"
 import "core:flags"
 import "core:fmt"
 import "core:os"
-import "core:strings"
-
 
 main :: proc() {
 	Options :: struct {}
