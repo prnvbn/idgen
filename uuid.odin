@@ -1,6 +1,7 @@
 package idgen
 
 import "core:c"
+import "core:crypto/legacy/md5"
 import "core:encoding/uuid"
 import "core:math/rand"
 import "core:strings"
@@ -68,6 +69,19 @@ generate_v1_uuid_with_daemon :: proc() -> (id: uuid.Identifier, ok: bool) {
 	}
 
 	return id, true
+}
+
+// reference: https://github.com/util-linux/util-linux/blob/9a6d1e94551a690a29d67dff721df593bed22195/libuuid/src/gen_uuid.c#L803-L823
+generate_v3_uuid :: proc(ns: uuid.Identifier, name: []byte) -> (id: uuid.Identifier) {
+	ns := ns
+	ctx: md5.Context
+
+	md5.init(&ctx)
+	md5.update(&ctx, ns[:])
+	md5.update(&ctx, transmute([]byte)name)
+	md5.final(&ctx, id[:])
+
+	return
 }
 
 // reference: https://github.com/google/uuid/blob/2d3c2a9cc518326daf99a383f07c4d3c44317e4d/uuid.go#L95

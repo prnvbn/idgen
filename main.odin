@@ -69,6 +69,20 @@ main :: proc() {
 		case opts.time_v1:
 			generated_uuid := uuid.to_string(generate_v1_uuid())
 			fmt.println(generated_uuid)
+		case opts.md5:
+			name: []byte
+			if opts.hex {
+				ok: bool
+				name, ok = decode_hex(opts.name)
+				if !ok {
+					exit_with_error("`%s` is not a valid hex string", opts.name)
+				}
+			} else {
+				name = transmute([]byte)opts.name
+			}
+
+			generated_uuid := uuid.to_string(generate_v3_uuid(opts.namespace.id, name))
+			fmt.println(generated_uuid)
 		case opts.random:
 			fallthrough
 		case:
@@ -83,4 +97,24 @@ exit_with_error :: proc(format: string, args: ..any, flush := true) {
 	stderr := os.to_stream(os.stderr)
 	fmt.wprintfln(stderr, format, ..args, flush = flush)
 	os.exit(1)
+}
+
+decode_hex :: proc(value: string) -> (result: []byte, ok: bool) {
+	if len(value) % 2 != 0 {
+		return
+	}
+
+	result = make([]byte, len(value) / 2)
+
+	for i in 0 ..< len(result) {
+		result[i], ok = xtob(value[i * 2], value[i * 2 + 1])
+		if !ok {
+			delete(result)
+			result = nil
+			return
+		}
+	}
+
+	ok = true
+	return
 }
