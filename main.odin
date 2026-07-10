@@ -83,17 +83,16 @@ exit_with_error :: proc(format: string, args: ..any, flush := true) {
 	os.exit(1)
 }
 
-decode_hex :: proc(value: string) -> (result: []byte, ok: bool) {
+decode_hex :: proc(value: string, allocator := context.allocator) -> (result: []byte, ok: bool) {
 	if len(value) % 2 != 0 {
 		return
 	}
 
-	result = make([]byte, len(value) / 2)
-
+	result = make([]byte, len(value) / 2, allocator)
 	for i in 0 ..< len(result) {
 		result[i], ok = xtob(value[i * 2], value[i * 2 + 1])
 		if !ok {
-			delete(result)
+			delete(result, allocator)
 			result = nil
 			return
 		}
