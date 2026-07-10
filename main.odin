@@ -18,8 +18,9 @@ Options :: struct {
 	time_v1: bool `args:"name=time,alias=t" usage:"generate time-based uuid"`,
 }
 
-// wrapper around flags.parse_or_exit to add support for alias subtag (so that I can support shorthands)
-// used the following as a reference: https://github.com/odin-lang/Odin/blob/5b54b5df3160d6b8d63d41327f4aeb4dd8aae2d8/core/flags/util.odin#L22-L29
+// edited implementation of flags.parse_or_exit to add support for alias subtag (so that I can support shorthands)
+// reference: https://github.com/odin-lang/Odin/blob/5b54b5df3160d6b8d63d41327f4aeb4dd8aae2d8/core/flags/util.odin#L22-L29
+@(optimization_mode = "favor_size")
 parse_or_exit_with_aliases :: proc(
 	model: ^$T,
 	program_args: []string,
