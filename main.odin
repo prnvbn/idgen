@@ -12,16 +12,18 @@ import "core:strings"
 import "core:sys/posix"
 
 Options :: struct {
-	version: bool `args:"alias=V" usage:"show version number and quit"`,
-	time_v7: bool `args:"name=time-v7,alias=7" usage:"generate time-based v7 uuid"`,
-	time_v6: bool `args:"name=time-v6,alias=6" usage:"generate time-based v6 uuid"`,
-	time_v1: bool `args:"name=time,alias=t" usage:"generate time-based uuid"`,
+	version: bool `args:"short=V" usage:"show version number and quit"`,
+	time_v7: bool `args:"name=time-v7,short=7" usage:"generate time-based v7 uuid"`,
+	time_v6: bool `args:"name=time-v6,short=6" usage:"generate time-based v6 uuid"`,
+	time_v1: bool `args:"name=time,short=t" usage:"generate time-based uuid"`,
 }
 
-// edited implementation of flags.parse_or_exit to add support for alias subtag (so that I can support shorthands)
+SUBTAG_SHORT :: "short"
+
+// edited implementation of flags.parse_or_exit to add support for the short subtag (so that I can support shorthands)
 // reference: https://github.com/odin-lang/Odin/blob/5b54b5df3160d6b8d63d41327f4aeb4dd8aae2d8/core/flags/util.odin#L22-L29
 @(optimization_mode = "favor_size")
-parse_or_exit_with_aliases :: proc(
+parse_or_exit_with_short :: proc(
 	model: ^$T,
 	program_args: []string,
 	style: flags.Parsing_Style = .Odin,
@@ -37,29 +39,29 @@ parse_or_exit_with_aliases :: proc(
 		args = program_args[1:]
 	}
 
-	aliases := make(map[string]string)
+	shorts := make(map[string]string)
 	for field in reflect.struct_fields_zipped(typeid_of(T)) {
-		args_tag, ok := reflect.struct_tag_lookup(field.tag, "args")
+		args_tag, ok := reflect.struct_tag_lookup(field.tag, flags.TAG_ARGS)
 		if !ok {
 			continue
 		}
 
-		alias, has_alias := flags.get_subtag(args_tag, "alias")
-		if !has_alias {
+		short, has_short := flags.get_subtag(args_tag, SUBTAG_SHORT)
+		if !has_short {
 			continue
 		}
 
-		name, has_name := flags.get_subtag(args_tag, "name")
+		name, has_name := flags.get_subtag(args_tag, flags.SUBTAG_NAME)
 		if !has_name {
 			name = field.name
 		}
 
-		aliases[strings.concatenate({"-", alias})] = strings.concatenate({"--", name})
+		shorts[strings.concatenate({"-", short})] = strings.concatenate({"--", name})
 	}
 
 	expanded_args := make([]string, len(args))
 	for arg, i in args {
-		name, ok := aliases[arg]
+		name, ok := shorts[arg]
 		if ok {
 			expanded_args[i] = name
 		} else {
@@ -74,7 +76,7 @@ parse_or_exit_with_aliases :: proc(
 		if len(args) == 0 {
 			// No arguments entered, and there was an error; show the usage,
 			// specifically on STDERR.
-			flags.write_usage(stderr, T, program, style) //TODO: add support for alias subtag in here
+			flags.write_usage(stderr, T, program, style) //TODO? add support for short subtag in here
 			fmt.wprintln(stderr)
 		}
 
@@ -89,7 +91,7 @@ main :: proc() {
 	opts: Options
 	style: flags.Parsing_Style = .Unix
 
-	parse_or_exit_with_aliases(&opts, os.args, style)
+	parse_or_exit_with_short(&opts, os.args, style)
 
 	switch {
 	case opts.version:
