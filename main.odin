@@ -16,6 +16,7 @@ Options :: struct {
 	time_v7: bool `args:"name=time-v7,short=7" usage:"generate time-based v7 uuid"`,
 	time_v6: bool `args:"name=time-v6,short=6" usage:"generate time-based v6 uuid"`,
 	time_v1: bool `args:"name=time,short=t" usage:"generate time-based uuid"`,
+	random:  bool `args:"name=random,short=r" usage:"generate random-based uuid"`,
 	count:   uint `args:"name=count,short=C" usage:"generate more uuids in loop"`,
 }
 
@@ -109,6 +110,8 @@ main :: proc() {
 		case opts.time_v1:
 			generated_uuid := uuid.to_string(generate_v1_uuid())
 			fmt.println(generated_uuid)
+		case opts.random:
+			fallthrough
 		case:
 			generated_uuid := uuid.to_string(uuid.generate_v4())
 			fmt.println(generated_uuid)
