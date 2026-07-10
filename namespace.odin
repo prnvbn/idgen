@@ -27,16 +27,16 @@ uuid_namespace_type_setter :: proc(
 
 	switch unparsed_value {
 	case "@dns", "dns":
-		namespace.id = UUID_NAMESPACE_DNS
+		namespace.id = uuid.Namespace_DNS
 		namespace.set = true
 	case "@url", "url":
-		namespace.id = UUID_NAMESPACE_URL
+		namespace.id = uuid.Namespace_URL
 		namespace.set = true
 	case "@oid", "oid":
-		namespace.id = UUID_NAMESPACE_OID
+		namespace.id = uuid.Namespace_OID
 		namespace.set = true
 	case "@x500", "@x.500":
-		namespace.id = UUID_NAMESPACE_X500
+		namespace.id = uuid.Namespace_X500
 		namespace.set = true
 	case:
 		parsed, ok := parse_uuid(unparsed_value)
@@ -49,79 +49,4 @@ uuid_namespace_type_setter :: proc(
 	}
 
 	return
-}
-
-// reference: https://github.com/util-linux/util-linux/blob/9a6d1e94551a690a29d67dff721df593bed22195/libuuid/src/predefined.c#L48-L63
-// todo: (nit) fix ols config to not expand these
-UUID_NAMESPACE_DNS :: uuid.Identifier {
-	0x6b,
-	0xa7,
-	0xb8,
-	0x10,
-	0x9d,
-	0xad,
-	0x11,
-	0xd1,
-	0x80,
-	0xb4,
-	0x00,
-	0xc0,
-	0x4f,
-	0xd4,
-	0x30,
-	0xc8,
-}
-UUID_NAMESPACE_URL :: uuid.Identifier {
-	0x6b,
-	0xa7,
-	0xb8,
-	0x11,
-	0x9d,
-	0xad,
-	0x11,
-	0xd1,
-	0x80,
-	0xb4,
-	0x00,
-	0xc0,
-	0x4f,
-	0xd4,
-	0x30,
-	0xc8,
-}
-UUID_NAMESPACE_OID :: uuid.Identifier {
-	0x6b,
-	0xa7,
-	0xb8,
-	0x12,
-	0x9d,
-	0xad,
-	0x11,
-	0xd1,
-	0x80,
-	0xb4,
-	0x00,
-	0xc0,
-	0x4f,
-	0xd4,
-	0x30,
-	0xc8,
-}
-UUID_NAMESPACE_X500 :: uuid.Identifier {
-	0x6b,
-	0xa7,
-	0xb8,
-	0x14,
-	0x9d,
-	0xad,
-	0x11,
-	0xd1,
-	0x80,
-	0xb4,
-	0x00,
-	0xc0,
-	0x4f,
-	0xd4,
-	0x30,
-	0xc8,
 }

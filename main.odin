@@ -1,6 +1,7 @@
 package idgen
 
 import "core:encoding/uuid"
+import "core:encoding/uuid/legacy"
 import "core:flags"
 import "core:fmt"
 import "core:os"
@@ -59,12 +60,12 @@ main :: proc() {
 		case opts.md5:
 			name, ok := name_bytes(opts.name, opts.hex)
 			if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
-			generated_uuid := uuid.to_string(generate_v3_uuid(opts.namespace.id, name))
+			generated_uuid := uuid.to_string(legacy.generate_v3(opts.namespace.id, name))
 			fmt.println(generated_uuid)
 		case opts.sha1:
 			name, ok := name_bytes(opts.name, opts.hex)
 			if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
-			generated_uuid := uuid.to_string(generate_v5_uuid(opts.namespace.id, name))
+			generated_uuid := uuid.to_string(legacy.generate_v5(opts.namespace.id, name))
 			fmt.println(generated_uuid)
 		case opts.random:
 			fallthrough
