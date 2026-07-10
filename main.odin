@@ -4,6 +4,7 @@ import "core:encoding/uuid"
 import "core:flags"
 import "core:fmt"
 import "core:os"
+import "core:strings"
 
 Options :: struct {
 	version:   bool `args:"short=V" usage:"show version number and quit"`,
@@ -45,7 +46,7 @@ main :: proc() {
 		switch {
 		case opts.version:
 			version := #load("version.txt")
-			fmt.println(string(version))
+			fmt.println(strings.trim_space(string(version)))
 		case opts.time_v7:
 			generated_uuid := uuid.to_string(uuid.generate_v7())
 			fmt.println(generated_uuid)
