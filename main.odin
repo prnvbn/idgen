@@ -56,16 +56,14 @@ main :: proc() {
 			generated_uuid := uuid.to_string(generate_v1_uuid())
 			fmt.println(generated_uuid)
 		case opts.md5:
-			name: []byte
-			if opts.hex {
-				ok: bool
-				name, ok = decode_hex(opts.name)
-				if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
-			} else {
-				name = transmute([]byte)opts.name
-			}
-
+			name, ok := name_bytes(opts.name, opts.hex)
+			if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
 			generated_uuid := uuid.to_string(generate_v3_uuid(opts.namespace.id, name))
+			fmt.println(generated_uuid)
+		case opts.sha1:
+			name, ok := name_bytes(opts.name, opts.hex)
+			if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
+			generated_uuid := uuid.to_string(generate_v5_uuid(opts.namespace.id, name))
 			fmt.println(generated_uuid)
 		case opts.random:
 			fallthrough
@@ -76,28 +74,30 @@ main :: proc() {
 	}
 }
 
-
 exit_with_error :: proc(format: string, args: ..any, flush := true) {
 	stderr := os.to_stream(os.stderr)
 	fmt.wprintfln(stderr, format, ..args, flush = flush)
 	os.exit(1)
 }
 
-decode_hex :: proc(value: string, allocator := context.allocator) -> (result: []byte, ok: bool) {
-	if len(value) % 2 != 0 {
-		return
-	}
-
-	result = make([]byte, len(value) / 2, allocator)
-	for i in 0 ..< len(result) {
-		result[i], ok = xtob(value[i * 2], value[i * 2 + 1])
-		if !ok {
-			delete(result, allocator)
-			result = nil
-			return
+name_bytes :: proc(name: string, hex: bool, allocator := context.allocator) -> ([]byte, bool) {
+	if hex {
+		if len(name) % 2 != 0 {
+			return nil, false
 		}
-	}
 
-	ok = true
-	return
+		decoded := make([]byte, len(name) / 2, allocator)
+		for i in 0 ..< len(decoded) {
+			ok: bool
+			decoded[i], ok = xtob(name[i * 2], name[i * 2 + 1])
+			if !ok {
+				delete(decoded, allocator)
+				return nil, false
+			}
+		}
+
+		return decoded, true
+
+	}
+	return transmute([]byte)name, true
 }
