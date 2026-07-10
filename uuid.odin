@@ -68,3 +68,8 @@ generate_v1_uuid_with_daemon :: proc() -> (id: uuid.Identifier, ok: bool) {
 
 	return id, true
 }
+
+// TODO! implement based on https://github.com/google/uuid/blob/2d3c2a9cc518326daf99a383f07c4d3c44317e4d/uuid.go#L95
+parse_uuid :: proc(raw: string) -> (id: uuid.Identifier, ok: bool) {
+	return {}, false
+}

@@ -7,6 +7,8 @@ import "core:path/filepath"
 import "core:reflect"
 import "core:strings"
 
+SUBTAG_SHORT :: "short"
+
 // edited implementation of flags.parse_or_exit to add support for the short subtag (so that I can support shorthands)
 // reference: https://github.com/odin-lang/Odin/blob/5b54b5df3160d6b8d63d41327f4aeb4dd8aae2d8/core/flags/util.odin#L22-L29
 @(optimization_mode = "favor_size")
