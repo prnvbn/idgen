@@ -24,25 +24,11 @@ validate_options_or_exit :: proc(opts: Options) {
 	has_namespace := opts.namespace.set
 	has_name := len(opts.name) > 0
 
-	if has_name && !has_namespace {
-		exit_with_error("--namespace requires --name argument")
-	}
-
-	if !has_name && has_namespace {
-		exit_with_error("--name requires --namespace argument")
-	}
-
-	if opts.md5 && opts.sha1 {
-		exit_with_error("--md5 and --sha1 can not combined")
-	}
-
-	if opts.md5 && (!has_name || !has_namespace) {
-		exit_with_error("--md5 requires --namespace  and --name arguments")
-	}
-
-	if opts.sha1 && (!has_name || !has_namespace) {
-		exit_with_error("--sha1 requires --namespace  and --name arguments")
-	}
+	if has_name && !has_namespace do exit_with_error("--namespace requires --name argument")
+	if !has_name && has_namespace do exit_with_error("--name requires --namespace argument")
+	if opts.md5 && opts.sha1 do exit_with_error("--md5 and --sha1 can not combined")
+	if opts.md5 && (!has_name || !has_namespace) do exit_with_error("--md5 requires --namespace  and --name arguments")
+	if opts.sha1 && (!has_name || !has_namespace) do exit_with_error("--sha1 requires --namespace  and --name arguments")
 }
 
 main :: proc() {
@@ -74,9 +60,7 @@ main :: proc() {
 			if opts.hex {
 				ok: bool
 				name, ok = decode_hex(opts.name)
-				if !ok {
-					exit_with_error("`%s` is not a valid hex string", opts.name)
-				}
+				if !ok do exit_with_error("`%s` is not a valid hex string", opts.name)
 			} else {
 				name = transmute([]byte)opts.name
 			}
