@@ -52,6 +52,7 @@ uuid_namespace_type_setter :: proc(
 }
 
 // reference: https://github.com/util-linux/util-linux/blob/9a6d1e94551a690a29d67dff721df593bed22195/libuuid/src/predefined.c#L48-L63
+// todo: (nit) fix ols config to not expand these
 UUID_NAMESPACE_DNS :: uuid.Identifier {
 	0x6b,
 	0xa7,

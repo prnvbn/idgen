@@ -3,6 +3,7 @@ package idgen
 import "core:c"
 import "core:encoding/uuid"
 import "core:math/rand"
+import "core:strings"
 import "core:sys/posix"
 
 UUIDD_SOCKET_PATH :: "/run/uuidd/request"
@@ -69,7 +70,340 @@ generate_v1_uuid_with_daemon :: proc() -> (id: uuid.Identifier, ok: bool) {
 	return id, true
 }
 
-// TODO! implement based on https://github.com/google/uuid/blob/2d3c2a9cc518326daf99a383f07c4d3c44317e4d/uuid.go#L95
-parse_uuid :: proc(raw: string) -> (id: uuid.Identifier, ok: bool) {
-	return {}, false
+// reference: https://github.com/google/uuid/blob/2d3c2a9cc518326daf99a383f07c4d3c44317e4d/uuid.go#L95
+// todo: look into better error handling in Odin
+// todo: add tests for this
+parse_uuid :: proc(s: string) -> (id: uuid.Identifier, ok: bool) {
+	s := s
+	switch len(s) {
+	case 36:
+	// xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+	case 36 + 9:
+		// urn:uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+		if !strings.equal_fold(s[:9], "urn:uuid:") {
+			return {}, false
+		}
+		s = s[9:]
+	case 36 + 2:
+		// {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+		s = s[1:len(s)]
+	case 32:
+		// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		for i in id {
+			id[i], ok = xtob(s[i * 2], s[i * 2 + 1])
+			if !ok {
+				return {}, false
+			}
+		}
+		return id, true
+	case:
+		// invalid length
+		return {}, false
+	}
+
+	// s is now at least 36 bytes long
+	// it must be of the form xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+	if s[8] != '-' || s[13] != '-' || s[18] != '-' || s[23] != '-' {
+		return {}, false
+	}
+
+	hex_pair_offsets := [16]int{0, 2, 4, 6, 9, 11, 14, 16, 19, 21, 24, 26, 28, 30, 32, 34}
+	for x, i in hex_pair_offsets {
+		id[i], ok = xtob(s[x], s[x + 1])
+		if !ok {
+			return id, false
+		}
+	}
+
+	return
+}
+
+// hex pair offsets for uuid of the form xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+STANDARD_UUID_HEX_PAIR_OFFSETS :: [16]int {
+	0,
+	2,
+	4,
+	6,
+	9,
+	11,
+	14,
+	16,
+	19,
+	21,
+	24,
+	26,
+	28,
+	30,
+	32,
+	34,
+}
+
+// xtob converts hex characters x1 and x2 into a byte.
+// reference: https://github.com/google/uuid/blob/master/util.go#L40
+xtob :: proc(x1, x2: byte) -> (byte, bool) {
+	xvalues := XVALUES
+	b1 := xvalues[x1]
+	b2 := xvalues[x2]
+	return (b1 << 4) | b2, b1 != 255 && b2 != 255
+}
+
+// xvalues returns the value of a byte as a hexadecimal digit or 255.
+// todo: (nit) fix ols config to not expand this
+XVALUES :: [256]byte {
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	0,
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7,
+	8,
+	9,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	10,
+	11,
+	12,
+	13,
+	14,
+	15,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	10,
+	11,
+	12,
+	13,
+	14,
+	15,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
+	255,
 }
