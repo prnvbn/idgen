@@ -1,2 +1,12 @@
-idgen
-dist/
+# Local and release binaries
+/idgen
+/dist/
+
+# Odin build artifacts
+/*.exe
+/*.pdb
+/*.o
+/*.ll
+/*.S
+/.odin-cache
+*.spall

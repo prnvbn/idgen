@@ -13,43 +13,28 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.target }}
+    name: Build ${{ matrix.asset }}
     strategy:
       fail-fast: true
       matrix:
         include:
           - os: ubuntu-latest
-            target: linux-amd64
-            artifact_name: idgen-linux-amd64
-            artifact_path: dist/idgen-linux-amd64
+            asset: idgen-linux-amd64
 
           - os: ubuntu-24.04-arm
-            target: linux-arm64
-            artifact_name: idgen-linux-arm64
-            artifact_path: dist/idgen-linux-arm64
+            asset: idgen-linux-arm64
 
           - os: macos-15-intel
-            target: darwin-amd64
-            artifact_name: idgen-darwin-amd64
-            artifact_path: dist/idgen-darwin-amd64
+            asset: idgen-darwin-amd64
 
           - os: macos-14
-            target: darwin-arm64
-            artifact_name: idgen-darwin-arm64
-            artifact_path: dist/idgen-darwin-arm64
+            asset: idgen-darwin-arm64
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set tag
-        shell: bash
-        run: |
-          echo "TAG=$(cat version.txt | tr -d '\n')" >> "$GITHUB_ENV"
 
       - name: Setup Odin
         uses: laytan/setup-odin@v2
@@ -57,15 +42,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        shell: bash
-        run: |
-          make ${{ matrix.target }}
+        run: make release PROG=${{ matrix.asset }}
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_path }}
+          name: ${{ matrix.asset }}
+          path: dist/${{ matrix.asset }}
 
   release:
     name: Release

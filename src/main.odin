@@ -49,7 +49,7 @@ main :: proc() {
 	for _ in 0 ..< num_uuids {
 		switch {
 		case opts.version:
-			version := #load("version.txt")
+			version := #load("../version.txt")
 			fmt.println(strings.trim_space(string(version)))
 		case opts.time_v7:
 			generated_uuid := uuid.to_string(uuid.generate_v7())

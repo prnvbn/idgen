@@ -1,32 +1,38 @@
-.PHONY: vet build darwin-amd64 darwin-arm64 linux-arm64 linux-amd64 clean
+PROG = idgen
 
-DIST_DIR := dist
-BUILD_FLAGS := -o:speed -vet
-SRC := .
+SRC = src
 
-define build-target
-	mkdir -p $(DIST_DIR)
-	odin build $(SRC) $(BUILD_FLAGS) -target:$(1) -out:$(DIST_DIR)/idgen-$(2)
-endef
+ODIN = odin
+BUILD_DIR = dist
+COMMON_FLAGS = -strict-style -vet-semicolon -vet-cast -vet-using-param
+RELEASE_FLAGS = -vet-unused -o:speed
+DEBUG_FLAGS = -debug -o:none
 
-vet:
-	odin check $(SRC) -vet
+all: release
 
-build:
-	mkdir -p $(DIST_DIR)
-	odin build $(SRC) $(BUILD_FLAGS) -out:$(DIST_DIR)/idgen
+release: $(BUILD_DIR)
+	$(ODIN) build $(SRC) $(COMMON_FLAGS) $(RELEASE_FLAGS) -microarch:native -out:$(BUILD_DIR)/$(PROG)
 
-darwin-amd64:
-	$(call build-target,darwin_amd64,darwin-amd64)
+debug: $(BUILD_DIR)
+	$(ODIN) build $(SRC) $(COMMON_FLAGS) $(DEBUG_FLAGS) -out:$(BUILD_DIR)/$(PROG)
 
-darwin-arm64:
-	$(call build-target,darwin_arm64,darwin-arm64)
+run: debug
+	./$(BUILD_DIR)/$(PROG) $(ARGS)
 
-linux-arm64:
-	$(call build-target,linux_arm64,linux-arm64)
+test: $(BUILD_DIR)
+	$(ODIN) test $(SRC) $(COMMON_FLAGS) $(DEBUG_FLAGS) \
+		-define:ODIN_TEST_LOG_LEVEL=warning \
+		-define:ODIN_TEST_FANCY=false \
+		-define:ODIN_TEST_SHORT_LOGS=true \
+		-keep-executable -out:$(BUILD_DIR)/$(PROG)-tests
 
-linux-amd64:
-	$(call build-target,linux_amd64,linux-amd64)
+check:
+	$(ODIN) check $(SRC) $(COMMON_FLAGS) -vet-unused -debug
+
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(DIST_DIR)/
+	-@rm -r $(BUILD_DIR)
+
+.PHONY: all release debug run test check clean
