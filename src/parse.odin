@@ -24,11 +24,17 @@ write_usage_with_short :: proc(
 
 	for short, long in shorts {
 		usage_flag := strings.concatenate({"[", long, "]"}, context.temp_allocator)
-		usage_with_short := strings.concatenate({"[", short, "|", long, "]"}, context.temp_allocator)
+		usage_with_short := strings.concatenate(
+			{"[", short, "|", long, "]"},
+			context.temp_allocator,
+		)
 		strings.builder_replace_all(&builder, usage_flag, usage_with_short)
 
 		flag_line := strings.concatenate({"\t", long, " "}, context.temp_allocator)
-		flag_line_with_short := strings.concatenate({"\t", short, ", ", long, " "}, context.temp_allocator)
+		flag_line_with_short := strings.concatenate(
+			{"\t", short, ", ", long, " "},
+			context.temp_allocator,
+		)
 		strings.builder_replace_all(&builder, flag_line, flag_line_with_short)
 	}
 
