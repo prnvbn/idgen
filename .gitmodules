@@ -1,0 +1,3 @@
+[submodule "lib/type_id"]
+	path = lib/type_id
+	url = https://github.com/prnvbn/typeid-odin.git

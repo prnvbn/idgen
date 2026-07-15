@@ -1,6 +1,6 @@
 # idgen
 
-`idgen` is a drop in replacement for [uuidgen](https://www.man7.org/linux/man-pages/man1/uuidgen.1.html) implemented in [Odin](https://odin-lang.org/).
+`idgen` is a drop in replacement for [uuidgen](https://www.man7.org/linux/man-pages/man1/uuidgen.1.html) implemented in [Odin](https://odin-lang.org/). Additionally, it also supports [UUIDv8](https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-8) and [TypeIDs](https://github.com/jetify-com/typeid).
 
 ## Installation
 

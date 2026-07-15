@@ -4,7 +4,7 @@ SRC = src
 
 ODIN = odin
 BUILD_DIR = dist
-COMMON_FLAGS = -strict-style -vet-semicolon -vet-cast -vet-using-param
+COMMON_FLAGS = -collection:lib=./lib -strict-style -vet-semicolon -vet-cast -vet-using-param
 RELEASE_FLAGS = -vet-unused -o:speed
 DEBUG_FLAGS = -debug -o:none
 

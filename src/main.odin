@@ -1,11 +1,13 @@
 package idgen
 
+import "core:crypto"
 import "core:encoding/uuid"
 import "core:encoding/uuid/legacy"
 import "core:flags"
 import "core:fmt"
 import "core:os"
 import "core:strings"
+import "lib:type_id"
 
 Options :: struct {
 	version:   bool `args:"short=V" usage:"show version number and quit"`,
@@ -13,6 +15,7 @@ Options :: struct {
 	time_v6:   bool `args:"name=time-v6,short=6" usage:"generate time-based UUIDv6"`,
 	time_v1:   bool `args:"name=time,short=t" usage:"generate time-based UUIDv1"`,
 	random:    bool `args:"name=random,short=r" usage:"generate random-based UUIDv4"`,
+	type_id:   string `args:"name=type-id,short=T" usage:"generate a TypeID with this prefix"`,
 	count:     uint `args:"name=count,short=C" usage:"generate more uuids in loop"`,
 	namespace: UUID_Namespace `args:"name=namespace,short=n" usage:"generate hash-based uuid in this namespace. available namespaces: @dns @url @oid @x500"`,
 	name:      string `args:"name=name,short=N" usage:"generate hash-based uuid from this name"`,
@@ -21,7 +24,6 @@ Options :: struct {
 	hash_v8:   UUID_V8_Hash `args:"name=hash-v8,short=8" usage:"generate hash-based UUIDv8 using this algorithm"`,
 	hex:       bool `args:"name=hex,short=x" usage:"interpret name as hex string"`,
 }
-
 
 validate_options_or_exit :: proc(opts: Options) {
 	has_namespace := opts.namespace.set
@@ -40,6 +42,8 @@ main :: proc() {
 	opts: Options
 	style: flags.Parsing_Style = .Unix
 
+	context.random_generator = crypto.random_generator()
+
 	flags.register_type_setter(idgen_type_setter)
 	parse_or_exit_with_short(&opts, os.args, style)
 	validate_options_or_exit(opts)
@@ -51,6 +55,11 @@ main :: proc() {
 		case opts.version:
 			version := #load("../version.txt")
 			fmt.println(strings.trim_space(string(version)))
+		case len(opts.type_id) > 0:
+			generated_type_id, err := type_id.generate(opts.type_id)
+			if err != nil do exit_with_error("failed to generate TypeID: %s", type_id.error_string(err))
+			buffer: [type_id.MAX_STRING_LENGTH]byte
+			fmt.println(type_id.to_string(generated_type_id, buffer[:]))
 		case opts.time_v7:
 			generated_uuid := uuid.to_string(uuid.generate_v7())
 			fmt.println(generated_uuid)
@@ -77,8 +86,7 @@ main :: proc() {
 				uuid.generate_v8_hash(opts.namespace.id, name, opts.hash_v8.algorithm),
 			)
 			fmt.println(generated_uuid)
-		case opts.random:
-			fallthrough
+		case opts.random: fallthrough
 		case:
 			generated_uuid := uuid.to_string(uuid.generate_v4())
 			fmt.println(generated_uuid)
