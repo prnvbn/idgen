@@ -1,3 +1,6 @@
 [submodule "lib/type_id"]
 	path = lib/type_id
 	url = https://github.com/prnvbn/typeid-odin.git
+[submodule "lib/pflags"]
+	path = lib/pflags
+	url = https://github.com/prnvbn/pflags.git

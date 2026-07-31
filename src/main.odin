@@ -3,7 +3,7 @@ package idgen
 import "core:crypto"
 import "core:encoding/uuid"
 import "core:encoding/uuid/legacy"
-import "core:flags"
+import "lib:pflags"
 import "core:fmt"
 import "core:os"
 import "core:strings"
@@ -40,12 +40,11 @@ validate_options_or_exit :: proc(opts: Options) {
 
 main :: proc() {
 	opts: Options
-	style: flags.Parsing_Style = .Unix
 
 	context.random_generator = crypto.random_generator()
 
-	flags.register_type_setter(idgen_type_setter)
-	parse_or_exit_with_short(&opts, os.args, style)
+	pflags.register_type_setter(idgen_type_setter)
+	pflags.parse_or_exit(&opts, os.args, .Unix)
 	validate_options_or_exit(opts)
 
 	num_uuids := max(1, opts.count)
