@@ -84,9 +84,8 @@ parse_uuid :: proc(s: string) -> (id: uuid.Identifier, ok: bool) {
 			return {}, false
 		}
 		s = s[9:]
-	case 36 + 2:
-		// {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
-		s = s[1:len(s)]
+	case 36 + 2: // {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+			s = s[1:len(s)]
 	case 32:
 		// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 		for i in id {
@@ -96,9 +95,8 @@ parse_uuid :: proc(s: string) -> (id: uuid.Identifier, ok: bool) {
 			}
 		}
 		return id, true
-	case:
-		// invalid length
-		return {}, false
+	case: // invalid length
+			return {}, false
 	}
 
 	// s is now at least 36 bytes long

@@ -62,8 +62,7 @@ idgen_type_setter :: proc(
 		v8_hash := cast(^UUID_V8_Hash)data
 		v8_hash.algorithm = algorithm
 		v8_hash.set = true
-	case:
-		return "", false, nil
+	case: return "", false, nil
 	}
 
 	return
@@ -71,38 +70,22 @@ idgen_type_setter :: proc(
 
 parse_v8_hash_algorithm :: proc(value: string) -> (hash.Algorithm, bool) {
 	switch value {
-	case "blake2b":
-		return .BLAKE2B, true
-	case "blake2s":
-		return .BLAKE2S, true
-	case "sha224":
-		return .SHA224, true
-	case "sha256":
-		return .SHA256, true
-	case "sha384":
-		return .SHA384, true
-	case "sha512":
-		return .SHA512, true
-	case "sha512-256":
-		return .SHA512_256, true
-	case "sha3-224":
-		return .SHA3_224, true
-	case "sha3-256":
-		return .SHA3_256, true
-	case "sha3-384":
-		return .SHA3_384, true
-	case "sha3-512":
-		return .SHA3_512, true
-	case "sm3":
-		return .SM3, true
-	case "keccak-224":
-		return .Legacy_KECCAK_224, true
-	case "keccak-256":
-		return .Legacy_KECCAK_256, true
-	case "keccak-384":
-		return .Legacy_KECCAK_384, true
-	case "keccak-512":
-		return .Legacy_KECCAK_512, true
+	case "blake2b": return .BLAKE2B, true
+	case "blake2s": return .BLAKE2S, true
+	case "sha224": return .SHA224, true
+	case "sha256": return .SHA256, true
+	case "sha384": return .SHA384, true
+	case "sha512": return .SHA512, true
+	case "sha512-256": return .SHA512_256, true
+	case "sha3-224": return .SHA3_224, true
+	case "sha3-256": return .SHA3_256, true
+	case "sha3-384": return .SHA3_384, true
+	case "sha3-512": return .SHA3_512, true
+	case "sm3": return .SM3, true
+	case "keccak-224": return .Legacy_KECCAK_224, true
+	case "keccak-256": return .Legacy_KECCAK_256, true
+	case "keccak-384": return .Legacy_KECCAK_384, true
+	case "keccak-512": return .Legacy_KECCAK_512, true
 	}
 
 	return .Invalid, false

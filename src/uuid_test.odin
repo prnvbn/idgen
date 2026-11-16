@@ -2,7 +2,6 @@ package idgen
 
 import "core:testing"
 
-
 @(test)
 test_parse_uuid :: proc(t: ^testing.T) {
 	test :: struct {
@@ -24,7 +23,7 @@ test_parse_uuid :: proc(t: ^testing.T) {
 
 	for test in tests {
 		_, ok := parse_uuid(test.s)
-		testing.expect(t, ok == test.ok, "testcase faile")
+		testing.expect(t, ok == test.ok, "testcase failed")
 
 	}
 }
